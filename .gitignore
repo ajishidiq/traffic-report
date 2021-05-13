@@ -1,2 +1,5 @@
 # Igonore Configuration Files 
 .conf/
+
+# Ignore pycache
+__pycache__
