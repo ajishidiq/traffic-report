@@ -70,13 +70,32 @@ def get_item_id_1(connection, hostid):
             key_ ~ 'net.if.in'
         """
         cursor = connection.cursor()
-        ifName = []
-        ifSpeed = []
+        NodeTraffic = {}
+        ifName, ifAlias, ifSpeedID = ('', '', 0)
         cursor.execute(querySpeed, hostid)
         temp = cursor.fetchall()
         for result in temp:
-            ifName = re.search('(\S+)\((.*)\): Speed$', temp[1]).group(1)
-            ifAlias = re.search('(\S+)\((.*)\): Speed$', temp[1]).group(2)
+            ifName = re.search('(\S+)\((.*)\): Speed$', result[1]).group(1)
+            ifAlias = re.search('(\S+)\((.*)\): Speed$', result[1]).group(2)
+            ifSpeedID = int(result[0])
+            NodeTraffic[ifName] = {}
+            NodeTraffic[ifName]['ifAlias'] = ifAlias
+            NodeTraffic[ifName]['ifSpeedID'] = ifSpeedID
+        ifTXid = 0
+        cursor.execute(queryTX, hostid)
+        temp = cursor.fetchall()
+        for result in temp:
+            ifName = re.search('(\S+)\((.*)\): Bits sent$', result[1]).group(1)
+            ifTXid = int(result[0])
+            NodeTraffic[ifName]['ifTXid'] = ifTXid
+        ifRXid = 0
+        cursor.execute(queryRX, hostid)
+        temp = cursor.fetchall()
+        for result in temp:
+            ifName = re.search('(\S+)\((.*)\): Bits received$', result[1]).group(1)
+            ifRXid = int(result[0])
+            NodeTraffic[ifName]['ifRXid'] = ifRXid
+        return NodeTraffic
     except(Exception) as err:
         print(err)
         return False
